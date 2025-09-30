@@ -38,3 +38,13 @@ Base Data                     JavaScript Objects/Arrays          Storing mock us
 1. Save the code as vandana_platform.html.
 2. Open the file directly in any modern web browser (Chrome, Firefox, Edge, etc.).
 All navigation and interactive elements are handled by the embedded JavaScript.
+
+
+Uploading SIH_Final.mp4…
+
+
+
+▶️ A video of the prototype -
+https://1drv.ms/v/c/6c1cf0da3c7d1d8b/EZnAFHV9Fz5EmIV1oeYi8I8BQ_0Zrorur3schlWTcG_FiQ
+
+
