@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vandana - E-Learning Platform</title>
+    <!-- Chosen Palette: Vibrant Learning (Bright Sky Blue, Leaf Green, Sunny Yellow) -->
+    <!-- Application Structure Plan: A single-page application (SPA) with dynamically shown/hidden sections for different user views (Home, My Account, Teacher Portal). This structure was chosen to provide a seamless, app-like experience without page reloads, which is ideal for engagement. The core interaction revolves around a user role toggle (Student/Teacher) that conditionally displays relevant content and tools, making the single page adaptable to its primary user types. Navigation is handled by JavaScript, switching visibility of pre-defined sections. -->
+    <!-- Visualization & Content Choices: The main "Learning Tree" uses styled HTML/CSS to create an engaging, hierarchical view of content (Goal: Organize/Engage). This avoids complex libraries and is easily managed with JS for interactivity (expanding branches). For the Teacher Portal, Chart.js is used to render bar charts for student and class progress (Goal: Compare/Inform). This choice provides clear, interactive data visualization. Text content is organized into cards for clarity. All choices support the child-friendly, interactive goals of the platform. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #F0F9FF; /* Light Sky Blue Background */
+        }
+        .nav-active {
+            color: #FBBF24; /* Sunny Yellow for active link */
+            font-weight: 700;
+        }
+        .page {
+            display: none;
+        }
+        .page-active {
+            display: block;
+        }
+        .scheme-card-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .scheme-card-container::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        .tree .branch > span { cursor: pointer; }
+        .tree .leaves { display: none; margin-left: 2rem; padding-left: 1rem; border-left: 2px dashed #34D399; }
+        .tree .branch.open > .leaves { display: block; }
+        .tree .branch.open > span > .icon { transform: rotate(90deg); }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header class="bg-sky-500 shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center text-white">
+            <a href="#" class="font-bold text-2xl" onclick="showPage('home')">
+                📚 Vandana
+            </a>
+            <div class="hidden lg:flex items-center space-x-6">
+                <a href="#" class="nav-link nav-active" onclick="navigateTo(event, 'home')">Home</a>
+                <div class="relative w-72">
+                    <input type="text" id="search-bar" class="w-full bg-sky-400 text-white placeholder-sky-200 rounded-full py-2 px-4 focus:outline-none" placeholder="Search content or writer...">
+                    <span class="absolute right-3 top-2.5 text-sky-200">🔍</span>
+                </div>
+                <a href="#" class="nav-link" onclick="navigateTo(event, 'about')">About Us</a>
+                <a href="#" class="nav-link" onclick="navigateTo(event, 'contact')">Contact Us</a>
+                <a href="#" class="nav-link" onclick="scrollToSchemes(event)">Schemes</a>
+            </div>
+            <div class="flex items-center space-x-4">
+                 <div class="text-sm">
+                    <span class="font-semibold">Mode:</span>
+                    <button id="user-role-toggle" class="bg-yellow-400 text-sky-800 font-bold py-1 px-3 rounded-full hover:bg-yellow-300 transition-colors">Switch to Teacher</button>
+                 </div>
+                <a href="#" class="nav-link" onclick="navigateTo(event, 'account')">👤 My Account</a>
+            </div>
+        </nav>
+    </header>
+
+    <main id="main-content" class="container mx-auto p-4 md:p-8">
+        
+        <!-- Home Page / Student Portal -->
+        <section id="home" class="page page-active">
+            <div class="text-center bg-white p-8 rounded-2xl shadow-lg">
+                <h1 class="text-4xl md:text-6xl font-bold text-sky-600">"शिक्षित भारत, विकसित भारत।"</h1>
+                <p class="text-gray-500 mt-2">"Sikhshit Bharat, Viksit Bharat."</p>
+                <img src="https://placehold.co/800x400/BFDBFE/1E40AF?text=Happy+Students+Learning" alt="Happy Students Learning" class="w-full max-w-4xl mx-auto mt-6 rounded-2xl">
+            </div>
+
+            <div id="learning-tree-container" class="mt-12">
+                <h2 class="text-3xl font-bold text-center mb-6 text-sky-700">Your Learning Tree 🌱</h2>
+                <div class="bg-white p-6 rounded-2xl shadow-lg tree">
+                    <!-- Tree content will be generated by JS -->
+                </div>
+            </div>
+            
+            <div id="schemes-section" class="mt-12">
+                <h2 class="text-3xl font-bold text-center mb-6 text-sky-700">Government Schemes</h2>
+                 <div class="flex space-x-6 overflow-x-auto pb-4 scheme-card-container">
+                    <!-- Scheme Cards -->
+                    <div class="flex-shrink-0 w-80 bg-gradient-to-br from-green-400 to-blue-500 text-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold">National Education Policy</h3>
+                        <p class="mt-2 text-sm">Focusing on holistic, flexible, multidisciplinary education for India's future.</p>
+                        <img src="https://placehold.co/300x150/FFFFFF/3B82F6?text=NEP+2020" class="mt-4 rounded-lg">
+                    </div>
+                    <div class="flex-shrink-0 w-80 bg-gradient-to-br from-yellow-400 to-orange-500 text-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold">Digital India</h3>
+                        <p class="mt-2 text-sm">Empowering the nation with digital literacy and accessible online infrastructure.</p>
+                         <img src="https://placehold.co/300x150/FFFFFF/F97316?text=Digital+India" class="mt-4 rounded-lg">
+                    </div>
+                     <div class="flex-shrink-0 w-80 bg-gradient-to-br from-purple-500 to-pink-500 text-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold">Samagra Shiksha</h3>
+                        <p class="mt-2 text-sm">An integrated scheme for school education extending from pre-school to class 12.</p>
+                         <img src="https://placehold.co/300x150/FFFFFF/EC4899?text=Samagra+Shiksha" class="mt-4 rounded-lg">
+                    </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Search Results Page -->
+        <section id="search-results" class="page">
+             <h2 class="text-3xl font-bold mb-6 text-sky-700">Search Results</h2>
+             <div id="search-results-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Search results will be injected here -->
+             </div>
+             <div id="no-results-message" class="text-center py-12 hidden">
+                <div class="text-6xl mb-4">🤔</div>
+                <h3 class="text-2xl font-bold text-gray-700">No Content Found</h3>
+                <p class="text-gray-500 mt-2">Try searching for a different topic or check your spelling!</p>
+             </div>
+        </section>
+
+        <!-- About Us Page -->
+        <section id="about" class="page">
+             <div class="bg-white p-8 rounded-2xl shadow-lg">
+                <h2 class="text-3xl font-bold text-center mb-6 text-sky-700">About Vandana</h2>
+                <p class="text-gray-600 leading-relaxed max-w-3xl mx-auto text-center">
+                    Vandana is a non-profit initiative dedicated to making quality education accessible to every child in India, focusing on local, school-based curriculum. We believe in the power of technology to bridge gaps and empower both students and teachers. Our platform is designed to be child-friendly, engaging, and a powerful tool for tracking and encouraging academic progress, truly embodying the spirit of "Sikhshit Bharat, Viksit Bharat."
+                </p>
+             </div>
+        </section>
+
+        <!-- Contact Us Page -->
+        <section id="contact" class="page">
+             <div class="bg-white p-8 rounded-2xl shadow-lg max-w-lg mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-6 text-sky-700">Get In Touch</h2>
+                <div class="space-y-4 text-center">
+                    <p><strong>Email:</strong> contact@vandana.edu</p>
+                    <p><strong>Instagram:</strong> @VandanaLearning</p>
+                    <p><strong>Contact:</strong> +91 98765 43210</p>
+                </div>
+             </div>
+        </section>
+
+        <!-- My Account Page -->
+        <section id="account" class="page">
+            <h2 class="text-3xl font-bold text-center mb-6 text-sky-700">My Account</h2>
+            
+            <!-- Student Profile -->
+            <div id="student-profile" class="bg-white p-8 rounded-2xl shadow-lg max-w-2xl mx-auto">
+                <h3 class="text-2xl font-bold text-green-600 mb-4">Student Profile</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><strong>Name:</strong> Rohan Kumar</div>
+                    <div><strong>Class & Roll No:</strong> 5th - 24</div>
+                    <div><strong>Email:</strong> rohan.k@email.com</div>
+                    <div><strong>Contact:</strong> +91 12345 67890</div>
+                    <div><strong>Parent's Contact:</strong> +91 09876 54321</div>
+                    <div><strong>Class Teacher:</strong> Mrs. Priya Sharma</div>
+                    <div><strong>School:</strong> Bright Future Public School</div>
+                    <div><strong>Address:</strong> Kota, Rajasthan</div>
+                    <div class="md:col-span-2"><strong>Last Activity:</strong> <span id="student-timestamp"></span></div>
+                </div>
+            </div>
+
+            <!-- Teacher Profile -->
+            <div id="teacher-profile" class="bg-white p-8 rounded-2xl shadow-lg max-w-2xl mx-auto hidden">
+                 <h3 class="text-2xl font-bold text-blue-600 mb-4">Teacher Profile</h3>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><strong>Name:</strong> Mrs. Priya Sharma</div>
+                    <div><strong>Contact:</strong> +91 55555 12345</div>
+                    <div><strong>Experience:</strong> 12 Years</div>
+                    <div><strong>Subjects:</strong> Mathematics, Science</div>
+                    <div><strong>School:</strong> Bright Future Public School</div>
+                    <div><strong>Address:</strong> Kota, Rajasthan</div>
+                    <div class="md:col-span-2"><strong>Qualifications:</strong> M.Sc. Mathematics, B.Ed.</div>
+                    <div class="md:col-span-2"><strong>Classrooms:</strong> Class 5th A, Class 5th B</div>
+                    <div class="md:col-span-2"><strong>Last Login:</strong> <span id="teacher-timestamp"></span></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Teacher Portal Page -->
+        <section id="teacher-portal" class="page">
+             <h2 class="text-3xl font-bold text-center mb-6 text-sky-700">Teacher's Dashboard</h2>
+             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Classroom Overview -->
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold text-blue-700 mb-4">Classroom Progress Overview</h3>
+                        <p class="text-sm text-gray-500 mb-4">Average progress of students across all subjects. Click a bar to view detailed student reports.</p>
+                        <div class="chart-container h-80 max-h-[400px]">
+                            <canvas id="classProgressChart"></canvas>
+                        </div>
+                    </div>
+                     <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold text-blue-700 mb-4">Student Progress: Rohan Kumar (Class 5th)</h3>
+                         <div class="chart-container h-64 max-h-[350px]">
+                            <canvas id="studentProgressChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <!-- Content Upload -->
+                <div class="bg-white p-6 rounded-2xl shadow-lg">
+                    <h3 class="text-xl font-bold text-blue-700 mb-4">Manage Content</h3>
+                    <button class="w-full bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition-colors">+ Upload New Content</button>
+                    <div class="mt-6 space-y-3">
+                        <p class="font-semibold text-gray-600">Your recent uploads:</p>
+                        <div class="border p-3 rounded-lg">
+                            <p class="font-semibold">Algebra Basics</p>
+                            <p class="text-xs text-gray-400">Updated: 28 Sep 2025, 10:15 AM</p>
+                        </div>
+                        <div class="border p-3 rounded-lg">
+                            <p class="font-semibold">The Solar System</p>
+                            <p class="text-xs text-gray-400">Updated: 25 Sep 2025, 03:30 PM</p>
+                        </div>
+                    </div>
+                </div>
+             </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-sky-800 text-sky-200 mt-12 py-8">
+        <div class="container mx-auto px-6 text-center">
+            <div class="flex justify-center space-x-6 mb-4">
+                 <a href="#" class="hover:text-white" onclick="navigateTo(event, 'home')">Home</a>
+                 <a href="#" class="hover:text-white" onclick="navigateTo(event, 'about')">About Us</a>
+                 <a href="#" class="hover:text-white" onclick="navigateTo(event, 'contact')">Contact Us</a>
+                 <a href="#" class="hover:text-white" onclick="scrollToSchemes(event)">Schemes</a>
+            </div>
+             <div class="flex justify-center space-x-6 mb-4">
+                <span>📧 contact@vandana.edu</span>
+                <span>📸 @VandanaLearning</span>
+                <span>📞 +91 98765 43210</span>
+             </div>
+            <p class="text-sm">&copy; 2025 Vandana Initiative. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const learningContent = [
+                { subject: 'Mathematics', chapters: [
+                    { title: 'Algebra', writer: 'Mrs. Priya Sharma', completed: true, lessons: [
+                        { title: 'Algebra Basics', image: 'https://placehold.co/400x225/A7F3D0/14532D?text=Fun+with+Algebra', reward: '🌸' },
+                        { title: 'Equations', image: 'https://placehold.co/400x225/A7F3D0/14532D?text=Solving+Equations', reward: '🍎' }
+                    ]},
+                    { title: 'Geometry', writer: 'Mr. Anil Verma', completed: false, lessons: [
+                        { title: 'Shapes and Angles', image: 'https://placehold.co/400x225/A7F3D0/14532D?text=Exploring+Shapes' },
+                        { title: 'Area and Perimeter', image: 'https://placehold.co/400x225/A7F3D0/14532D?text=Calculating+Area' }
+                    ]}
+                ]},
+                { subject: 'Science', chapters: [
+                    { title: 'Physics', writer: 'Mrs. Priya Sharma', completed: false, lessons: [
+                        { title: 'Forces and Motion', image: 'https://placehold.co/400x225/BAE6FD/0C4A6E?text=Push+and+Pull' }
+                    ]},
+                    { title: 'Biology', writer: 'Ms. Sunita Rai', completed: true, lessons: [
+                        { title: 'The Plant Kingdom', image: 'https://placehold.co/400x225/BAE6FD/0C4A6E?text=Wonderful+Plants', reward: '🌻' },
+                        { title: 'The Animal Kingdom', image: 'https://placehold.co/400x225/BAE6FD/0C4A6E?text=Amazing+Animals', reward: '🍇' }
+                    ]},
+                     { title: 'Chemistry', writer: 'Mrs. Priya Sharma', completed: false, lessons: [
+                        { title: 'Acids and Bases', image: 'https://placehold.co/400x225/BAE6FD/0C4A6E?text=Fun+Reactions' }
+                    ]},
+                ]}
+            ];
+
+            let currentUserRole = 'student';
+            
+            const pages = document.querySelectorAll('.page');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const userRoleToggleButton = document.getElementById('user-role-toggle');
+            const studentProfile = document.getElementById('student-profile');
+            const teacherProfile = document.getElementById('teacher-profile');
+            const studentTimestamp = document.getElementById('student-timestamp');
+            const teacherTimestamp = document.getElementById('teacher-timestamp');
+            const searchBar = document.getElementById('search-bar');
+            const searchResultsContent = document.getElementById('search-results-content');
+            const noResultsMessage = document.getElementById('no-results-message');
+            const learningTreeContainer = document.querySelector('#learning-tree-container .tree');
+            
+            function updateTimestamps() {
+                const now = new Date();
+                studentTimestamp.textContent = now.toLocaleString();
+                teacherTimestamp.textContent = now.toLocaleString();
+            }
+
+            window.showPage = (pageId) => {
+                pages.forEach(page => {
+                    page.classList.remove('page-active');
+                    if (page.id === pageId) {
+                        page.classList.add('page-active');
+                    }
+                });
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('nav-active');
+                    if (link.getAttribute('onclick').includes(pageId)) {
+                        link.classList.add('nav-active');
+                    }
+                });
+                window.scrollTo(0, 0);
+            }
+
+            window.navigateTo = (event, pageId) => {
+                event.preventDefault();
+                showPage(pageId);
+            }
+
+            window.scrollToSchemes = (event) => {
+                event.preventDefault();
+                showPage('home');
+                setTimeout(() => {
+                    document.getElementById('schemes-section').scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+            }
+            
+            function toggleUserRole() {
+                currentUserRole = currentUserRole === 'student' ? 'teacher' : 'student';
+                if (currentUserRole === 'teacher') {
+                    userRoleToggleButton.textContent = 'Switch to Student';
+                    studentProfile.classList.add('hidden');
+                    teacherProfile.classList.remove('hidden');
+                    showPage('teacher-portal');
+                } else {
+                    userRoleToggleButton.textContent = 'Switch to Teacher';
+                    studentProfile.classList.remove('hidden');
+                    teacherProfile.classList.add('hidden');
+                    showPage('home');
+                }
+            }
+
+            function generateLearningTree() {
+                let html = '';
+                learningContent.forEach(subject => {
+                    html += `<div class="branch p-2 mb-2">`;
+                    html += `<span class="flex items-center text-xl font-bold text-sky-800"><span class="icon inline-block mr-2 transition-transform">▶️</span> ${subject.subject}</span>`;
+                    html += `<div class="leaves">`;
+                    subject.chapters.forEach(chapter => {
+                         html += `<div class="branch p-2">`;
+                         html += `<span class="flex items-center text-lg font-semibold text-green-700"><span class="icon inline-block mr-2 transition-transform">▶️</span> ${chapter.title} <em class="ml-2 text-sm text-gray-500 font-normal">by ${chapter.writer}</em> ${chapter.completed ? '<span class="ml-2 text-yellow-500">⭐</span>' : ''}</span>`;
+                         html += `<div class="leaves grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">`;
+                         chapter.lessons.forEach(lesson => {
+                            html += createContentCard(lesson);
+                         });
+                         html += `</div></div>`;
+                    });
+                    html += `</div></div>`;
+                });
+                learningTreeContainer.innerHTML = html;
+                
+                learningTreeContainer.querySelectorAll('.branch > span').forEach(branch => {
+                    branch.addEventListener('click', () => {
+                        branch.parentElement.classList.toggle('open');
+                    });
+                });
+            }
+            
+            function createContentCard(item) {
+                return `
+                    <div class="bg-gray-50 border rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <img src="${item.image}" alt="${item.title}" class="w-full h-32 object-cover rounded-md mb-3">
+                        <h4 class="font-semibold text-gray-800">${item.title} ${item.reward || ''}</h4>
+                        ${item.writer ? `<p class="text-sm text-gray-500">by ${item.writer}</p>`: ''}
+                    </div>
+                `;
+            }
+
+            function handleSearch() {
+                const query = searchBar.value.toLowerCase().trim();
+                if (query.length < 2) {
+                    showPage('home');
+                    searchResultsContent.innerHTML = '';
+                    return;
+                }
+
+                let results = [];
+                learningContent.forEach(subject => {
+                    subject.chapters.forEach(chapter => {
+                        chapter.lessons.forEach(lesson => {
+                            const fullLessonData = {...lesson, writer: chapter.writer};
+                            if (fullLessonData.title.toLowerCase().includes(query) || fullLessonData.writer.toLowerCase().includes(query)) {
+                                results.push(fullLessonData);
+                            }
+                        });
+                    });
+                });
+
+                showPage('search-results');
+                if (results.length > 0) {
+                    searchResultsContent.innerHTML = results.map(createContentCard).join('');
+                    searchResultsContent.classList.remove('hidden');
+                    noResultsMessage.classList.add('hidden');
+                } else {
+                    searchResultsContent.classList.add('hidden');
+                    noResultsMessage.classList.remove('hidden');
+                }
+            }
+            
+            function initializeCharts() {
+                const classCtx = document.getElementById('classProgressChart').getContext('2d');
+                new Chart(classCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Class 5th A', 'Class 5th B', 'Class 6th A', 'Class 4th C'],
+                        datasets: [{
+                            label: 'Overall Progress (%)',
+                            data: [78, 65, 85, 72],
+                            backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, title: { display: true, text: 'Average Class Completion Rate' } },
+                        scales: { y: { beginAtZero: true, max: 100 } }
+                    }
+                });
+
+                const studentCtx = document.getElementById('studentProgressChart').getContext('2d');
+                new Chart(studentCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Mathematics', 'Science', 'English', 'History'],
+                        datasets: [{
+                            label: 'Subject Progress (%)',
+                            data: [85, 72, 91, 68],
+                            backgroundColor: ['rgba(16, 185, 129, 0.5)', 'rgba(234, 179, 8, 0.5)', 'rgba(239, 68, 68, 0.5)', 'rgba(139, 92, 246, 0.5)'],
+                            borderColor: ['rgba(16, 185, 129, 1)', 'rgba(234, 179, 8, 1)', 'rgba(239, 68, 68, 1)', 'rgba(139, 92, 246, 1)'],
+                            borderWidth: 1,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, title: { display: true, text: 'Progress by Subject' } },
+                        scales: { x: { beginAtZero: true, max: 100 } }
+                    }
+                });
+            }
+
+            userRoleToggleButton.addEventListener('click', toggleUserRole);
+            searchBar.addEventListener('keyup', handleSearch);
+
+            updateTimestamps();
+            setInterval(updateTimestamps, 60000);
+            generateLearningTree();
+            initializeCharts();
+        });
+    </script>
+</body>
+</html>
